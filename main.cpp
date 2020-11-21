@@ -17,6 +17,6 @@ int  main()
   //db.Demo2();
   //db.Demo3();
   //db.Demo4();
-  db.Demo5_user_search();
+  db.Demo5();
   return  0;
 }

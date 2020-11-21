@@ -121,16 +121,30 @@ public:
   }
   void  Add(User& u);
   void  Add(const char* name, const char* pass);
+  void  AddBuf(int nth)
+  {
+    if(FNum < MaxUsers)
+    {
+      F[FNum] = nth;
+      FNum++;
+    }
+  }
   void  Reset()
   {
     Num = 0;
     memset(U, 0, sizeof(User) * MaxUsers);
+    ResetBuf();
+  }
+  void ResetBuf()
+  {
+    FNum = 0;
+    memset(F, 0, sizeof(int) * MaxUsers);
   }
   void  Show();
   void  Save();
   void  Load();
-  void  Search(char user_id[]);
-  void  Edit();
+  int  Search(const char* user_id, int patial_search = false);
+  void  Edit(int num, char* edit_text);
   
   int   InRange(int nth)
   {
@@ -161,7 +175,7 @@ public:
   void  Demo2();
   void  Demo3();
   void  Demo4();
-  void  Demo5_user_search();
+  void  Demo5();
 };
 
 #endif

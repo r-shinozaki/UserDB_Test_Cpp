@@ -3,6 +3,7 @@
 #include <string>
 #include <stdlib.h>
 #include <time.h>
+#include <iostream>
 #include "user.h"
 
 //-------------------------------------------------------
@@ -97,18 +98,22 @@ void  UserDB::Load()
 //--------------------
 // ファイルからデータを検索する
 //-------------------------------------------------------
-void  UserDB::Search(char* user_id)
+int  UserDB::Search(const char* user_id, int patial_search)
 {
+  if(!user_id || *user_id) return 0;
+
   int num = 0;
-  Load();
-  printf("%4s | %-7s | %-20s\n","件数","ID","名前");
-  for(User user : U){
-    if(strcmp(user.ID, user_id) == 0){
-      num++;
-      printf("%4d | %-7s | %-20s\n",num, user.ID, user_id);
+  ResetBuf();
+  for(int i=0; i<Num; i++)
+  {
+    if(patial_search && strstr(U[i].ID, user_id))
+    {
+      AddBuf(i);
+    }
+    else if(strcmp(U[i].ID, user_id) == 0){
+      AddBuf(i);
     }
   }
-  printf("%d件ヒットしました。\n", num);
 }
 
 //-------------------------------------------------------
@@ -116,9 +121,11 @@ void  UserDB::Search(char* user_id)
 //---------------------------
 // ファイルのユーザ情報を編集する
 //-------------------------------------------------------
-void UserDB::Edit()
+void UserDB::Edit(int num, char* edit_text)
 {
-	
+  if(InRange(num)){
+    strcpy(U[num].Name, edit_text);
+  }
 }
 
 //-------------------------------------------------------
@@ -251,23 +258,58 @@ void UserDB::Demo4(){
   }
 }
 
-void UserDB::Demo5_user_search()
+void UserDB::Demo5()
 {
-  char  name[MaxStrLen];
   char  pass[MaxStrLen];
-  char search_id[MaxIDLen];
-  int  n = 6; 
+  char  buf[MaxStrLen];
+  int   n = 6;
+  int   num = 0;
+  int  mode_num;
 
-  for(int i=0; i<n; i++){
-    sprintf(name, "n%08d", i);
+  const char* name[] = 
+  {
+    "神奈川太郎", "神奈川太鳳", "ホゲ太郎", "佐藤真知子", NULL
+  };
+
+  for(int i=0; name[i]; i++)
+  {
     sprintf(pass, "p%08d", i);
-    Add(name, pass);
+    Add(name[i], pass);
   }
+
   Save();
   Reset();
   Load();
-  printf("Type Serch ID : ");
-  scanf("%s", search_id);  
-  Search(search_id);
+  while(1)
+  {
+    Show();
+    printf("Select Mode : (Serch:1 Edit:2 Quit:99) : ");
+    fgets(mode_num, sizeof(mode_num), stdin);
+    printf("error");
+    switch (mode_num)
+    {
+    case 1 :
+      printf("Who Serch? (Return for Quit) : ");
+      fgets(buf, sizeof(buf), stdin);
+      strtok(buf, "\r\n");
+      if(! *buf || *buf == '\n') return;
+      // Search(search_id); //全文一致
+      num = Search(buf, true); //部分一致
+      if (num)
+      {
+        printf("%d date found!", num);
+        for(int i=0; i<num; i++)
+        {
+          U[F[i]].Out();
+        }
+        printf("\n");
+      }
+      break;
+    case 2 :
+      printf("Whose name edit? : ");
+      break;
+    default:
+      return;
+    }
+  }
 }
-
