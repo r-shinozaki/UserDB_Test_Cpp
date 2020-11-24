@@ -143,7 +143,7 @@ public:
   void  Show();
   void  Save();
   void  Load();
-  int  Search(const char* user_id, int patial_search = false);
+  int  Search(const char* name, int patial_search = false);
   void  Edit(int num, char* edit_text);
   
   int   InRange(int nth)

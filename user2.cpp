@@ -98,22 +98,23 @@ void  UserDB::Load()
 //--------------------
 // ファイルからデータを検索する
 //-------------------------------------------------------
-int  UserDB::Search(const char* user_id, int patial_search)
+int  UserDB::Search(const char* name, int patial_search)
 {
-  if(!user_id || *user_id) return 0;
+  if(!name || name == "\n") return 0;
 
-  int num = 0;
   ResetBuf();
   for(int i=0; i<Num; i++)
   {
-    if(patial_search && strstr(U[i].ID, user_id))
+    if(patial_search && strstr(U[i].Name, name))
     {
       AddBuf(i);
     }
-    else if(strcmp(U[i].ID, user_id) == 0){
+    else if(strcmp(U[i].Name, name) == 0)
+    {
       AddBuf(i);
     }
   }
+  return FNum;
 }
 
 //-------------------------------------------------------
@@ -262,9 +263,10 @@ void UserDB::Demo5()
 {
   char  pass[MaxStrLen];
   char  buf[MaxStrLen];
+  char  selectedMode[MaxStrLen];
+  int   selectedModeNum;
   int   n = 6;
   int   num = 0;
-  int  mode_num;
 
   const char* name[] = 
   {
@@ -277,27 +279,31 @@ void UserDB::Demo5()
     Add(name[i], pass);
   }
 
-  Save();
-  Reset();
-  Load();
+  // Save();
+  // Reset();
+  // Load();
   while(1)
   {
     Show();
-    printf("Select Mode : (Serch:1 Edit:2 Quit:99) : ");
-    fgets(mode_num, sizeof(mode_num), stdin);
-    printf("error");
-    switch (mode_num)
+    printf("Select Mode : (Serch:1 Edit:2 Quit:Enter) : ");
+    char temp = getchar();
+
+    fgets(selectedMode, sizeof(selectedMode), stdin);
+    strtok(selectedMode, "\r\n");
+    selectedModeNum = atoi(selectedMode);
+    switch (selectedModeNum)
     {
     case 1 :
       printf("Who Serch? (Return for Quit) : ");
+      temp = getchar();
       fgets(buf, sizeof(buf), stdin);
       strtok(buf, "\r\n");
       if(! *buf || *buf == '\n') return;
-      // Search(search_id); //全文一致
-      num = Search(buf, true); //部分一致
+      num = Search(buf); //全文一致
+      //num = Search(buf, true); //部分一致
       if (num)
       {
-        printf("%d date found!", num);
+        printf("%d data found!\n", num);
         for(int i=0; i<num; i++)
         {
           U[F[i]].Out();
