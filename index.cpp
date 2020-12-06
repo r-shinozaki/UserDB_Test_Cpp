@@ -2,14 +2,46 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+//=========================
+// グローバル定数
+//=========================
+const int MaxBufSize = 4096;
+
+class CGI
+{
+public:
+	char Buf[MaxBufSize];
+	CGI()
+	{
+		printf("Content-type:text/html\r\n\r\n");
+		GetData();
+		// Decode();
+	}
+	void GetData()
+	{
+		char* p = fgets(Buf, sizeof(Buf), stdin);
+		printf("%s", p);
+	}
+	void Decode(char* buf);
+	void Div();
+};
+
+void Div()
+{
+	
+}
+
+void CGI::Decode(char* buf)
+{
+
+}
 
 class HTML
 {
 public:
 	HTML()
 	{
-		printf("Content-type:text/html\r\n\r\n");
-		printf("<html lang=\"en\">\n<head>\n");
+		printf("<html lang=\"ja\">\n<head>\n");
 		Head();
 		printf("</head>\n<body>HELLO WORLD!\n");
 	}
@@ -22,8 +54,13 @@ public:
 	}
 };
 
+class App : public CGI, public HTML
+{
+
+};
+
 int main()
 {
-	HTML();
+	App();
 	return 0;
 }
