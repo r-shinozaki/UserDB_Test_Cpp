@@ -35,7 +35,12 @@ void CGI::Decode(char* buf)
 {
 	if(! buf) return;
 	char* p = buf;
-	
+	char* buffer[MaxBufSize];
+	while(*p){
+		switch(*p){
+			
+		}
+	}	
 }
 
 class HTML
@@ -45,7 +50,7 @@ public:
 	{
 		printf("<html lang=\"ja\">\n<head>\n");
 		Head();
-		printf("</head>\n<body>HELLO WORLD!\n");
+		printf("</head>\n<body>\n");
 	}
 	~HTML(){
 		printf("</body>\n</html>\n");
