@@ -33,7 +33,9 @@ void Div()
 
 void CGI::Decode(char* buf)
 {
-
+	if(! buf) return;
+	char* p = buf;
+	
 }
 
 class HTML
