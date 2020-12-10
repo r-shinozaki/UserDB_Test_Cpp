@@ -107,7 +107,7 @@ void StrTable::Show()
 //=========================
 // クラス：CGI
 //=========================
-class CGI
+class CGI : public StrTable
 {
 public:
 	char Buf[MaxBufSize];
@@ -136,7 +136,9 @@ void CGI::Div()
 			char* r;
 			if(r = strchr(q, '=')){
 				*r = 0;
-				printf("到達 : %s",r+1);
+				// printf("アドレス値：%d 前：%s 後： %s",*r ,q ,r+1);
+				Add(q, r+1);
+				Decode(Item[Num-1].Value);
 			}
 		} while(q = strtok(NULL, "&")); //NULLは続きから
 	}
