@@ -96,7 +96,7 @@ void StrTable::Show()
 	printf("<table border=1 cellpadding=1 cellspacing=1>\n");
   for(int i=0; i<Num; i++){
     printf("<tr><td>%d<td>%s<td>%s\n"
-	   , i
+	   , i+1
 	   , Item[i].Name
 	   , Item[i].Value
 	   );
@@ -113,7 +113,7 @@ public:
 	char Buf[MaxBufSize];
 	CGI()
 	{
-		printf("Content-type:text/html\r\n\r\n");
+		printf("Content-type:text/html\n\n");
 		GetData();
 		Div();
 	}
@@ -130,8 +130,8 @@ void CGI::Div()
 	char* p = Buf;
 	char* q;
 	if(q = strtok(p, "&")){
-		int Num = 0;
-		printf("strtok後の変数q : %s\n", q);
+		Num = 0;
+		//printf("strtok後の変数q : %s\n", q);
 		do{
 			char* r;
 			if(r = strchr(q, '=')){
@@ -158,7 +158,7 @@ void CGI::Decode(char* buf)
 				decode[i++] = code;
 				p+=3;
 				break;
-			case '&' :
+			case '+' :
 				decode[i++] = ' ';
 				p++;
 				break;
@@ -187,15 +187,28 @@ public:
 	{
 		printf("<meta charset=\"UTF-8\">\n<title>Document</title>\n");
 	}
+	virtual void Run() = 0;
 };
 
+//=======================================
+// クラス：App
+//=======================================
 class App : public CGI, public HTML
 {
-
+public:
+	virtual void Run();
 };
 
+void App::Run()
+{
+	Show();
+}
+
+//=====================================
+// 関数：main
+//=====================================
 int main()
 {
-	App();
+	App().Run();
 	return 0;
 }
