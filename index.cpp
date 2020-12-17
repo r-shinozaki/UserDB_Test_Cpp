@@ -131,16 +131,14 @@ void CGI::Div()
 	char* q;
 	if(q = strtok(p, "&")){
 		Num = 0;
-		//printf("strtok後の変数q : %s\n", q);
 		do{
 			char* r;
 			if(r = strchr(q, '=')){
 				*r = 0;
-				// printf("アドレス値：%d 前：%s 後： %s",*r ,q ,r+1);
 				Add(q, r+1);
 				Decode(Item[Num-1].Value);
 			}
-		} while(q = strtok(NULL, "&")); //NULLは続きから
+		} while(q = strtok(NULL, "&")); 
 	}
 }
 
