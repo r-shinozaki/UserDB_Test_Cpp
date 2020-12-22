@@ -2,14 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-//=========================
-// グローバル定数
-//=========================
-const int MaxBufSize = 4096;
-const int MaxNameSize = 1024;
-const int MaxValueSize = 2048;
-const int MaxStrItem = 500;
-const char* ProgName = "index.cgi";
+#include "user.h"
 
 //=========================
 // クラス：StrItem
@@ -194,6 +187,12 @@ public:
 class App : public CGI, public HTML
 {
 public:
+	UserDB	UDb;
+public:
+	App()
+	{
+		UDb.Load();
+	}
 	virtual void Run();
 	void StartForm()
 	{
@@ -210,7 +209,7 @@ void App::Run()
 	Show();
 
 	StrTable tbl;
-	tbl.Add("Add", "新規登録");
+	tbl.Add("add", "新規登録");
 	tbl.Add("edit", "ユーザ編集");
 	tbl.Add("del", "ユーザ削除");
   tbl.Add("show", "ユーザ一覧");
@@ -230,6 +229,165 @@ void App::Run()
     }
 	}
 	EndForm();
+
+	// ユーザ登録
+  if(Search("add")){
+    printf("add<br>\n");
+    StartForm();
+    {
+      printf("<table border cellpadding=1 cellspacing=1 bgcolor=#cce>\n"
+	     "<tr><td>氏名<td><input name=name >\n"
+	     "<tr><td>パスワード<td><input type=password name=pass >\n"
+	     "<tr><td>有効フラグ<td><input type=radio name=avail value='1' checked>有効\n"
+	     "<input type=radio name=avail value='0'>無効\n"
+	     "<tr><td>会員種別<td><select name=level>"
+	     );
+      for(int i=0; i<EOD_LEVEL; i++){
+	      printf("<option value=%d %s>%s"
+	       , i
+	       , i == GEN ? "selected" : ""
+	       , LevelLabel[i]);
+      }
+      printf("</select>"
+	     "<tr><td colspan=2><input type=submit name=doadd value='登録'>"
+	     "</table>"
+	     );
+    }
+    EndForm();
+  }
+  else if(Search("doadd")){
+    char*  name = Search("name");
+    char*  pass = Search("pass");
+    char*  avail = Search("avail");
+    char*  level = Search("level");
+    char*  id = Search("id");
+    if(name && *name && pass && *pass && avail && *avail && level && *level){
+      if(! id){
+	UDb.Add(name, pass, (t_Level)atoi(level));
+      }
+      else {
+	int  nth = atoi(id);
+	strcpy(UDb.U[nth].Name, name);
+	strcpy(UDb.U[nth].Pass, pass);
+	if(UDb.U[nth].ID[0] == '-')
+	  UDb.U[nth].ID[0] = 's';
+	UDb.U[nth].Avail = (t_Avail)atoi(avail);
+	UDb.U[nth].Level = (t_Level)atoi(level);
+      }
+      printf("<textarea cols=100 rows=10 readonly>");
+      UDb.Show();
+      printf("</textarea>");
+      UDb.Save();
+    }
+    else {
+      printf("すべてのデータを入力してください．");
+    }
+  }
+  // ユーザ編集
+  else if(Search("edit")){
+    printf("edit<br>\n");
+    StartForm();
+    {
+      printf("<select name=id>");
+      for(int i=0; i<UDb.Num; i++){
+	printf("<option value=%d>%d", i, i);
+      }
+      printf("</select>"
+	     "<input type=submit name=doedit value='編集'>"
+	     );
+    }
+    EndForm();
+  }
+  // ユーザ編集
+  else if(Search("doedit")){
+    char*  id = Search("id");
+    if(! id || ! *id)
+      ;
+    else {
+      int  nth = atoi(id);
+
+      printf("nth = [%d]<br>\n", nth);
+      StartForm();
+      {
+	printf("<input type=hidden name=id value='%d'>", nth);
+	UDb.GenForm(nth);
+      }
+      EndForm();
+    }
+  }
+  // ユーザ削除
+  else if(Search("del")){
+    printf("del<br>\n");
+    StartForm();
+    {
+      printf("<select name=id>");
+      for(int i=0; i<UDb.Num; i++){
+	printf("<option value=%d>%d", i, i);
+      }
+      printf("</select>"
+	     "<input type=submit name=dodel value='削除'>"
+	     );
+    }
+    EndForm();
+  }
+  // ユーザ削除
+  else if(Search("dodel")){
+    char*  id = Search("id");
+    if(! id || ! *id)
+      ;
+    else {
+      int  nth = atoi(id);
+
+      printf("nth = [%d]<br>\n", nth);
+      UDb.Remove(nth);
+      UDb.Save();
+    }
+  }
+  // ユーザ一覧
+  else if(Search("show")){
+    printf("show<br>\n");
+    printf("<textarea cols=100 rows=10 readonly>");
+    UDb.Show();
+    printf("</textarea>");
+  }
+  // ユーザ検索
+  else if(Search("search")){
+    printf("search<br>\n");
+    StartForm();
+    {
+      printf("<input name=key>"
+	     "<input type=submit name=dosearch value='検索'>"
+	     );
+    }
+    EndForm();
+  }
+  // ユーザ検索
+  else if(Search("dosearch")){
+    printf("search<br>\n");
+    char*  key = Search("key");
+    UDb.Search(key, true);
+    printf("<textarea cols=100 rows=10 readonly>");
+    UDb.ShowFound();
+    printf("</textarea>");
+  }
+  // ファイル読込
+  else if(Search("load")){
+    printf("load<br>\n");
+    UDb.Load();
+    printf("<textarea cols=100 rows=10 readonly>");
+    UDb.Show();
+    printf("</textarea>");
+  }
+  // ファイル保存
+  else if(Search("save")){
+    printf("save<br>\n");
+    UDb.Save();
+  }
+  // デモデータ保存
+  else if(Search("savedemo")){
+    printf("savedemo<br>\n");
+    UDb.SaveDemo();
+  }
 }
 
 //=====================================
