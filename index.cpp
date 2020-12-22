@@ -9,7 +9,7 @@ const int MaxBufSize = 4096;
 const int MaxNameSize = 1024;
 const int MaxValueSize = 2048;
 const int MaxStrItem = 500;
-const char* Progname = "index.cgi";
+const char* ProgName = "index.cgi";
 
 //=========================
 // クラス：StrItem
@@ -195,11 +195,41 @@ class App : public CGI, public HTML
 {
 public:
 	virtual void Run();
+	void StartForm()
+	{
+		printf("<form action %s method=post>\n", ProgName);
+	}
+	void EndForm()
+	{
+		printf("</form>");
+	}
 };
 
 void App::Run()
 {
 	Show();
+
+	StrTable tbl;
+	tbl.Add("Add", "新規登録");
+	tbl.Add("edit", "ユーザ編集");
+	tbl.Add("del", "ユーザ削除");
+  tbl.Add("show", "ユーザ一覧");
+  tbl.Add("search", "ユーザ検索");
+  tbl.Add("load", "読込");
+  tbl.Add("save", "保存");
+  tbl.Add("savedemo", "デモデータ保存");
+
+	char name[256];
+	StartForm();
+	{
+		for(int i=0; i<tbl.Num; i++){
+      printf("<input type=submit name=%s value='%s'>\n"
+	     , tbl.Item[i].Name
+	     , tbl.Item[i].Value
+	     );
+    }
+	}
+	EndForm();
 }
 
 //=====================================
